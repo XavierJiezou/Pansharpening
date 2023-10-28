@@ -1,10 +1,14 @@
 name: Tests
 
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main, "release/*", "dev"]
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main, "release/*", "dev"]
+    tags:
+      - "*.*.*"
 
 jobs:
   run_tests_ubuntu:
