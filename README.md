@@ -1295,3 +1295,8 @@ You can override any parameter from command line like this
 ```bash
 python src/train.py trainer.max_epochs=20 data.batch_size=64
 ```
+
+## Supported Methods
+
+- [x] [PNN](https://www.mdpi.com/2072-4292/8/7/594) (Remote Sensing, 2016)
+- [x] \[PanNet\] (https://openaccess.thecvf.com/content_iccv_2017/html/Yang_PanNet_A_Deep_ICCV_2017_paper.html) (ICCV, 2017)

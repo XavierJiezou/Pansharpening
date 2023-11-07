@@ -2,10 +2,10 @@
 
 defaults:
   - _self_
-  - data: mnist # choose datamodule with `test_dataloader()` for evaluation
-  - model: mnist
+  - data: panbench # choose datamodule with `test_dataloader()` for evaluation
+  - model: pnn
   - logger: null
-  - trainer: default
+  - trainer: gpu
   - paths: default
   - extras: default
   - hydra: default

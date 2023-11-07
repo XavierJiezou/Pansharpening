@@ -26,6 +26,11 @@ torch = { version = "^2.1.0", source = "pytorch-pypi" }
 torchvision = { version = "^0.16.0", source = "pytorch-pypi" }
 lightning = "^2.0.0"
 torchmetrics = "^0.11.4"
+rootutils = "^1.0.7"
+kornia = "^0.7.0"
+matplotlib = "^3.8.0"
+wandb = "^0.15.12"
+opencv-python = "^4.8.1.78"
 
 [tool.poetry.group.dev.dependencies]
 toml = "^0.10.2"
