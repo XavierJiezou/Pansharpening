@@ -1,7 +1,7 @@
 _target_: src.data.panbench_datamodule.PanBenchDataModule
 data_dir: ${paths.data_dir}
-batch_size: 128 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+batch_size: 16 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
 train_val_test_split: [4_718, 590, 590]
-num_workers: 19
+num_workers: 8
 pin_memory: True
 persistent_workers: True
