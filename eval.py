@@ -32,7 +32,7 @@ class Eval:
         self.data = self.test_loader.dataset
 
     def get_model(self) -> torch.nn.Module:
-        if self.model_name == "pnn": # ("net._orig_mod.", "")
+        if self.model_name == "pnn":  # ("net._orig_mod.", "")
             return PNN()
         elif self.model_name == "pannet":
             return PanNet()
@@ -48,13 +48,15 @@ class Eval:
             return SRPPNN()
         elif self.model_name == "pgcu":
             return PGCU()
-        elif self.model_name == "uedm": # ("net.", "")
+        elif self.model_name == "uedm":  # ("net.", "")
             return UEDM(width=32)
         else:
             raise ValueError("Model name is not valid")
 
     def load_model(self) -> None:
-        ckpt_path = glob.glob(f"logs/train/runs/{self.model_name}/checkpoints/*.ckpt")[0]
+        ckpt_path = glob.glob(f"logs/train/runs/{self.model_name}/checkpoints/*.ckpt")[
+            0
+        ]
         checkpoint = torch.load(ckpt_path)
         state_dict = {}
         for key in checkpoint["state_dict"]:
@@ -87,16 +89,10 @@ class Eval:
                 fake_ms = self.model.forward(*[i.unsqueeze(0) for i in [ms, pan]])
                 fake_lrms = self.model.forward(*[i.unsqueeze(0) for i in [lrms, lrpan]])
                 D_lambda, D_s, QNR = no_ref_evaluate(
-                    *[
-                        i.permute(1, 2, 0).numpy()
-                        for i in [fake_ms.squeeze(0), pan, ms]
-                    ]
+                    *[i.permute(1, 2, 0).numpy() for i in [fake_ms.squeeze(0), pan, ms]]
                 )
                 PSNR, SSIM, SAM, ERGAS, SCC, Q = ref_evaluate(
-                    *[
-                        i.permute(1, 2, 0).numpy()
-                        for i in [fake_lrms.squeeze(0), ms]
-                    ]
+                    *[i.permute(1, 2, 0).numpy() for i in [fake_lrms.squeeze(0), ms]]
                 )
                 ref_metrics["PSNR"].append(PSNR)
                 ref_metrics["SSIM"].append(SSIM)
@@ -130,78 +126,3 @@ if __name__ == "__main__":
     eval = Eval(model_name)
     result = eval.evaluate()
     print(result)
-
-
-# import torch
-# import concurrent.futures
-
-# def process_data(x):
-#     ms, lrpan, lrms, pan = [i.to(device) for i in [x["ms"], x["lrpan"], x["lrms"], x["pan"]]]
-#     fake_ms = model.forward(*[i.unsqueeze(0) for i in [ms, pan]])
-#     fake_lrms = model.forward(*[i.unsqueeze(0) for i in [lrms, lrpan]])
-#     D_lambda, D_s, QNR = no_ref_evaluate(
-#         *[
-#             (i.permute(1, 2, 0) * 255).to("cpu", torch.uint8).numpy()
-#             for i in [fake_ms.squeeze(0), pan, ms]
-#         ]
-#     )
-#     PSNR, SSIM, SAM, ERGAS, SCC, Q = ref_evaluate(
-#         *[
-#             (i.permute(1, 2, 0) * 255).to("cpu", torch.uint8).numpy()
-#             for i in [fake_lrms.squeeze(0), ms]
-#         ]
-#     )
-#     return (D_lambda, D_s, QNR, PSNR, SSIM, SAM, ERGAS, SCC, Q)
-
-# def evaluate_data(test_loader):
-#     ref_metrics = {
-#         "PSNR": [],
-#         "SSIM": [],
-#         "SAM": [],
-#         "ERGAS": [],
-#         "SCC": [],
-#         "Q": [],
-#     }
-#     no_ref_metrics = {
-#         "D_lambda": [],
-#         "D_s": [],
-#         "QNR": [],
-#     }
-
-#     with torch.no_grad():
-#         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-#             futures = []
-#             for x in track(test_loader.dataset):
-#                 futures.append(executor.submit(process_data, x))
-
-#             for future in concurrent.futures.as_completed(futures):
-#                 D_lambda, D_s, QNR, PSNR, SSIM, SAM, ERGAS, SCC, Q = future.result()
-#                 ref_metrics["PSNR"].append(PSNR)
-#                 ref_metrics["SSIM"].append(SSIM)
-#                 ref_metrics["SAM"].append(SAM)
-#                 ref_metrics["ERGAS"].append(ERGAS)
-#                 ref_metrics["SCC"].append(SCC)
-#                 ref_metrics["Q"].append(Q)
-#                 no_ref_metrics["D_lambda"].append(D_lambda)
-#                 no_ref_metrics["D_s"].append(D_s)
-#                 no_ref_metrics["QNR"].append(QNR)
-
-#     result = {
-#         "Full Resolution": {
-#             "D_lambda": f"{sum(no_ref_metrics['D_lambda'])/len(no_ref_metrics['D_lambda']):.4f}",
-#             "D_s": f"{sum(no_ref_metrics['D_s'])/len(no_ref_metrics['D_s']):.4f}",
-#             "QNR": f"{sum(no_ref_metrics['QNR'])/len(no_ref_metrics['QNR']):.4f}",
-#         },
-#         "Reduced Resolution": {
-#             "PSNR": f"{sum(ref_metrics['PSNR'])/len(ref_metrics['PSNR']):.4f}",
-#             "SSIM": f"{sum(ref_metrics['SSIM'])/len(ref_metrics['SSIM']):.4f}",
-#             "SAM": f"{sum(ref_metrics['SAM'])/len(ref_metrics['SAM']):.4f}",
-#             "ERGAS": f"{sum(ref_metrics['ERGAS'])/len(ref_metrics['ERGAS']):.4f}",
-#             "SCC": f"{sum(ref_metrics['SCC'])/len(ref_metrics['SCC']):.4f}",
-#             "Q": f"{sum(ref_metrics['Q'])/len(ref_metrics['Q']):.4f}",
-#         },
-#     }
-#     return result
-
-# result = evaluate_data(test_loader)
-# print(result)
