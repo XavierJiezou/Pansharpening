@@ -72,8 +72,8 @@ class PANBlock(nn.Module):
 class GPPNN(nn.Module):
     def __init__(
         self,
-        in_channels,
-        out_channels,
+        in_channels: int = 5,
+        out_channels: int = 4,
     ):
         super(GPPNN, self).__init__()
         n_feat = 64
