@@ -30,7 +30,7 @@
 
 ## Introduction
 
-Deep learning techniques have shown significant success in pansharpening, existing methods often face limitations in their evaluation, focusing on restricted satellite data sources, single scene types, and low-resolution images. This paper addresses this gap by introducing PanBench, a high-resolution multi-scene dataset containing all mainstream satellites and comprising 5,898 pairs of samples. Each pair includes a four-channel (RGB + near-infrared) multispectral image of 256$\times$256 pixels and a mono-channel panchromatic image of 1,024$\times$1,024 pixels. To achieve high-fidelity synthesis, we propose a Cascaded Multiscale Fusion Network (CMFNet) for Pansharpening. Extensive experiments validate the effectiveness of CMFNet. We have released the dataset, source code, and pre-trained models in the supplementary, fostering further research in remote sensing.
+Deep learning techniques have shown significant success in pansharpening, existing methods often face limitations in their evaluation, focusing on restricted satellite data sources, single scene types, and low-resolution images. This paper addresses this gap by introducing PanBench, a high-resolution multi-scene dataset containing all mainstream satellites and comprising 5,898 pairs of samples. Each pair includes a four-channel (RGB + near-infrared) multispectral image of 256$\times$256 pixels and a mono-channel panchromatic image of 1,024X1,024 pixels. To achieve high-fidelity synthesis, we propose a Cascaded Multiscale Fusion Network (CMFNet) for Pansharpening. Extensive experiments validate the effectiveness of CMFNet. We have released the dataset, source code, and pre-trained models in the supplementary, fostering further research in remote sensing.
 
 <p align="center" width="100%">
   <img src='https://github-production-user-asset-6210df.s3.amazonaws.com/44519745/246222226-61e6b8e8-959c-4bb3-a1cd-c994b423de3f.png' width="90%">
@@ -135,7 +135,7 @@ We support various spatiotemporal prediction methods and provide [benchmarks](ht
 * Spatiotemporal Prediction Methods.
 
     <details open>
-    <summary>Currently supported methods</summary>
+    <summary>Pansharpening Methods</summary>
 
     - [x] [PNN](https://www.mdpi.com/2072-4292/8/7/594) (Remote Sensing'2016)
     - [x] [PanNet](https://xueyangfu.github.io/paper/2017/iccv/YangFuetal2017.pdf) (ICCV'2017)
@@ -152,7 +152,7 @@ We support various spatiotemporal prediction methods and provide [benchmarks](ht
 * Spatiotemporal Predictive Learning Benchmarks ([prepare_data](https://github.com/chengtan9907/OpenSTL/tree/master/tools/prepare_data) or [Baidu Cloud](https://pan.baidu.com/s/1fudsBHyrf3nbt-7d42YWWg?pwd=kjfk)).
 
     <details open>
-    <summary>Currently supported datasets</summary>
+    <summary>Currently supported satellite</summary>
 
     - [x] [GaoFen1]
     - [x] [GaoFen2]
