@@ -6,7 +6,7 @@
 
 <p align="left">
 <a href="https://arxiv.org/abs/2306.11249" alt="arXiv">
-    <img src="https://img.shields.io/badge/arXiv-2306.11249-b31b1b.svg?style=flat" /></a>
+    <img src="https://img.shields.io/badge/arXiv-2311.12083-b31b1b.svg?style=flat" /></a>
 <a href="https://github.com/chengtan9907/OpenSTL/blob/master/LICENSE" alt="license">
     <img src="https://img.shields.io/badge/license-Apache--2.0-%23002FA7" /></a>
 <!-- <a href="https://huggingface.co/OpenSTL" alt="Huggingface">
