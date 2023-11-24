@@ -1,0 +1,106 @@
+task_name: train
+tags:
+- panbench
+- uedmcolor
+train: true
+test: true
+ckpt_path: null
+seed: 42
+data:
+  _target_: src.data.panbench_datamodule.PanBenchDataModule
+  data_dir: ${paths.data_dir}
+  batch_size: 16
+  train_val_test_split:
+  - 4718
+  - 590
+  - 590
+  num_workers: 8
+  pin_memory: true
+  persistent_workers: true
+model:
+  _target_: src.models.panbench_module.PanBenchLitModule
+  optimizer:
+    _target_: torch.optim.Adam
+    _partial_: true
+    lr: 0.001
+    weight_decay: 0.0
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    _partial_: true
+    mode: min
+    factor: 0.1
+    patience: 10
+  net:
+    _target_: src.models.components.uedm_color.UEDM
+    width: 32
+  compile: false
+callbacks:
+  model_checkpoint:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    dirpath: ${paths.output_dir}/checkpoints
+    filename: epoch={epoch}-val_psnr={val/psnr:.4f}-val_ssim={val/ssim:.4f}
+    monitor: val/ssim
+    verbose: false
+    save_last: false
+    save_top_k: 1
+    mode: max
+    auto_insert_metric_name: false
+    save_weights_only: false
+    every_n_train_steps: null
+    train_time_interval: null
+    every_n_epochs: null
+    save_on_train_epoch_end: null
+  early_stopping:
+    _target_: lightning.pytorch.callbacks.EarlyStopping
+    monitor: val/ssim
+    min_delta: 0.0
+    patience: 10
+    verbose: false
+    mode: max
+    strict: true
+    check_finite: true
+    stopping_threshold: null
+    divergence_threshold: null
+    check_on_train_epoch_end: null
+  model_summary:
+    _target_: lightning.pytorch.callbacks.RichModelSummary
+    max_depth: -1
+  rich_progress_bar:
+    _target_: lightning.pytorch.callbacks.RichProgressBar
+logger:
+  wandb:
+    _target_: lightning.pytorch.loggers.wandb.WandbLogger
+    name: uedmcolor
+    save_dir: ${paths.output_dir}
+    offline: false
+    id: null
+    anonymous: null
+    project: pansharpening
+    log_model: false
+    prefix: ''
+    group: ''
+    tags: ${tags}
+    job_type: ''
+  aim:
+    experiment: uedmcolor
+trainer:
+  _target_: lightning.pytorch.trainer.Trainer
+  default_root_dir: ${paths.output_dir}
+  min_epochs: 50
+  max_epochs: 100
+  accelerator: gpu
+  devices:
+  - 3
+  check_val_every_n_epoch: 1
+  deterministic: false
+  gradient_clip_val: 0.5
+paths:
+  root_dir: ${oc.env:PROJECT_ROOT}
+  data_dir: ${paths.root_dir}/data/
+  log_dir: ${paths.root_dir}/logs/
+  output_dir: ${hydra:runtime.output_dir}
+  work_dir: ${hydra:runtime.cwd}
+extras:
+  ignore_warnings: false
+  enforce_tags: true
+  print_config: true
