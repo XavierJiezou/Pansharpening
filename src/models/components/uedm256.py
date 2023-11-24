@@ -333,7 +333,7 @@ class UEDM(nn.Module):
 
         for decoder, up, ms, pan in zip(self.decoders, self.ups, ms_encs[::-1][1:], pan_encs[::-1][1:]):
             fuse = up(fuse)
-            fuse = fuse + ms+pan # uedm6 skip+ms+pan
+            # fuse = fuse + ms+pan # uedm6 skip+ms+pan
             fuse = decoder(fuse)
 
         fuse = self.ending(fuse)
@@ -341,11 +341,7 @@ class UEDM(nn.Module):
 
 
 if __name__ == "__main__":
-    # x = torch.randn(1, 4, 64, 64)
-    # y = torch.randn(1, 1, 256, 256)
-    # out = UEDM(width=32, enc_blk_nums=[1, 1], dec_blk_nums=[1, 1])(x, y)
-    # assert out.shape == (1, 4, 256, 256)
-    x = torch.randn(1, 1, 256, 256)
-    n = MultiscalePANEncoder(1, 32)
-    for i in n(x):
-        print(i.shape)
+    x = torch.randn(1, 4, 64, 64)
+    y = torch.randn(1, 1, 256, 256)
+    out = UEDM(width=32, enc_blk_nums=[1, 1], dec_blk_nums=[1, 1])(x, y)
+    assert out.shape == (1, 4, 256, 256)

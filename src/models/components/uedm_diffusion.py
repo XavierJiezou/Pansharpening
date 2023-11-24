@@ -6,6 +6,60 @@ import math
 from abc import abstractmethod
 from typing import List, Tuple, Union, Optional, Callable
 
+import torch.nn.functional as F
+from functools import partial
+import math
+from abc import abstractmethod
+
+
+class EmbedBlock(nn.Module):
+    """
+    Any module where forward() takes embeddings as a second argument.
+    """
+
+    @abstractmethod
+    def forward(self, x, emb):
+        """
+        Apply the module to `x` given `emb` embeddings.
+        """
+
+
+class EmbedSequential(nn.Sequential, EmbedBlock):
+    """
+    A sequential module that passes embeddings to the children that
+    support it as an extra input.
+    """
+
+    def forward(self, x, emb):
+        for layer in self:
+            if isinstance(layer, EmbedBlock):
+                x = layer(x, emb)
+            else:
+                x = layer(x)
+        return x
+
+
+def gamma_embedding(gammas, dim, max_period=10000):
+    """
+    Create sinusoidal timestep embeddings.
+    :param gammas: a 1-D Tensor of N indices, one per batch element.
+                      These may be fractional.
+    :param dim: the dimension of the output.
+    :param max_period: controls the minimum frequency of the embeddings.
+    :return: an [N x dim] Tensor of positional embeddings.
+    """
+    half = dim // 2
+    freqs = torch.exp(
+        -math.log(max_period)
+        * torch.arange(start=0, end=half, dtype=torch.float32)
+        / half
+    ).to(device=gammas.device)
+    args = gammas[:, None].float() * freqs[None]
+    embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
+    if dim % 2:
+        embedding = torch.cat([embedding, torch.zeros_like(embedding[:, :1])], dim=-1)
+    return embedding
+
 
 class LayerNormFunction(torch.autograd.Function):
     @staticmethod
@@ -55,7 +109,7 @@ class SimpleGate(nn.Module):
         return x1 * x2
 
 
-class NAFBlock(nn.Module):
+class CondNAFBlock(nn.Module):
     def __init__(self, c, DW_Expand=2, FFN_Expand=2, drop_out_rate=0.0):
         super().__init__()
         dw_channel = c * DW_Expand
@@ -147,6 +201,10 @@ class NAFBlock(nn.Module):
 
         self.beta = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
         self.gamma = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
+        # self.time_emb = nn.Sequential(
+        #     nn.SiLU(),
+        #     nn.Linear(256, c),
+        # )
 
     def forward(self, inp):
         x = inp
@@ -164,6 +222,133 @@ class NAFBlock(nn.Module):
         x = self.dropout1(x)
 
         y = inp + x * self.beta
+
+        # y = y+self.time_emb(t)[..., None, None]
+
+        x = self.conv4(self.norm2(y))
+        x = self.sg(x)
+        x = self.conv5(x)
+
+        x = self.dropout2(x)
+
+        return y + x * self.gamma
+
+
+class NAFBlock(EmbedBlock):
+    def __init__(self, c, DW_Expand=2, FFN_Expand=2, drop_out_rate=0.0):
+        super().__init__()
+        dw_channel = c * DW_Expand
+        self.conv1 = nn.Conv2d(
+            in_channels=c,
+            out_channels=dw_channel,
+            kernel_size=1,
+            padding=0,
+            stride=1,
+            groups=1,
+            bias=True,
+        )
+        self.conv2 = nn.Conv2d(
+            in_channels=dw_channel,
+            out_channels=dw_channel,
+            kernel_size=3,
+            padding=1,
+            stride=1,
+            groups=dw_channel,
+            bias=True,
+        )
+        self.conv3 = nn.Conv2d(
+            in_channels=dw_channel // 2,
+            out_channels=c,
+            kernel_size=1,
+            padding=0,
+            stride=1,
+            groups=1,
+            bias=True,
+        )
+
+        self.sca_avg = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(
+                in_channels=dw_channel // 4,
+                out_channels=dw_channel // 4,
+                kernel_size=1,
+                padding=0,
+                stride=1,
+                groups=1,
+                bias=True,
+            ),
+        )
+        self.sca_max = nn.Sequential(
+            nn.AdaptiveMaxPool2d(1),
+            nn.Conv2d(
+                in_channels=dw_channel // 4,
+                out_channels=dw_channel // 4,
+                kernel_size=1,
+                padding=0,
+                stride=1,
+                groups=1,
+                bias=True,
+            ),
+        )
+
+        # SimpleGate
+        self.sg = SimpleGate()
+
+        ffn_channel = FFN_Expand * c
+        self.conv4 = nn.Conv2d(
+            in_channels=c,
+            out_channels=ffn_channel,
+            kernel_size=1,
+            padding=0,
+            stride=1,
+            groups=1,
+            bias=True,
+        )
+        self.conv5 = nn.Conv2d(
+            in_channels=ffn_channel // 2,
+            out_channels=c,
+            kernel_size=1,
+            padding=0,
+            stride=1,
+            groups=1,
+            bias=True,
+        )
+
+        self.norm1 = LayerNorm2d(c)
+        self.norm2 = LayerNorm2d(c)
+
+        self.dropout1 = (
+            nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
+        )
+        self.dropout2 = (
+            nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
+        )
+
+        self.beta = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
+        self.gamma = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
+        self.time_emb = nn.Sequential(
+            nn.SiLU(),
+            nn.Linear(256, c),
+        )
+
+    def forward(self, inp, t):
+        x = inp
+
+        x = self.norm1(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.sg(x)
+        x_avg, x_max = x.chunk(2, dim=1)
+        x_avg = self.sca_avg(x_avg) * x_avg
+        x_max = self.sca_max(x_max) * x_max
+        x = torch.cat([x_avg, x_max], dim=1)
+        x = self.conv3(x)
+
+        x = self.dropout1(x)
+
+        y = inp + x * self.beta
+
+        y = y + self.time_emb(t)[..., None, None]
 
         x = self.conv4(self.norm2(y))
         x = self.sg(x)
@@ -196,12 +381,12 @@ class MultiscalePANEncoder(nn.Module):
         chan = width
 
         for num in enc_blk_nums:
-            self.encs.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
+            self.encs.append(nn.Sequential(*[CondNAFBlock(chan) for _ in range(num)]))
             self.downs.append(nn.Conv2d(chan, 2 * chan, 2, 2))
             chan = chan * 2
 
         self.middle_blks = nn.Sequential(
-            *[NAFBlock(chan) for _ in range(middle_blk_num)]
+            *[CondNAFBlock(chan) for _ in range(middle_blk_num)]
         )
 
     def forward(self, pan):
@@ -238,7 +423,7 @@ class MultiscaleMSEncoder(nn.Module):
         chan = width * 4
 
         for num in enc_blk_nums:
-            self.encs.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
+            self.encs.append(nn.Sequential(*[CondNAFBlock(chan) for _ in range(num)]))
             self.ups.append(
                 nn.Sequential(
                     nn.Conv2d(chan, chan * 2, 1, bias=False), nn.PixelShuffle(2)
@@ -247,7 +432,7 @@ class MultiscaleMSEncoder(nn.Module):
             chan = chan // 2
 
         self.middle_blks = nn.Sequential(
-            *[NAFBlock(chan) for _ in range(middle_blk_num)]
+            *[CondNAFBlock(chan) for _ in range(middle_blk_num)]
         )
 
     def forward(self, ms):
@@ -262,7 +447,7 @@ class MultiscaleMSEncoder(nn.Module):
         return encs[::-1]
 
 
-class UEDM(nn.Module):
+class UEDMDiffusion(nn.Module):
     def __init__(
         self,
         img_channel=4,
@@ -272,6 +457,15 @@ class UEDM(nn.Module):
         dec_blk_nums=[1, 1],
     ):
         super().__init__()
+        self.intro = nn.Conv2d(
+            in_channels=img_channel,
+            out_channels=width,
+            kernel_size=3,
+            padding=1,
+            stride=1,
+            groups=1,
+            bias=True,
+        )
         self.ending = nn.Conv2d(
             in_channels=width,
             out_channels=4,
@@ -280,6 +474,9 @@ class UEDM(nn.Module):
             stride=1,
             groups=1,
             bias=True,
+        )
+        self.first = EmbedSequential(
+            *[NAFBlock(width) for _ in range(1)]
         )
 
         self.encoders = nn.ModuleList()
@@ -293,11 +490,11 @@ class UEDM(nn.Module):
 
         chan = width
         for num in enc_blk_nums:
-            self.encoders.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
+            self.encoders.append(EmbedSequential(*[NAFBlock(chan) for _ in range(num)]))
             self.downs.append(nn.Conv2d(chan, 2 * chan, 2, 2))
             chan = chan * 2
 
-        self.middle_blks = nn.Sequential(
+        self.middle_blks = EmbedSequential(
             *[NAFBlock(chan) for _ in range(middle_blk_num)]
         )
 
@@ -308,44 +505,47 @@ class UEDM(nn.Module):
                 )
             )
             chan = chan // 2
-            self.decoders.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
+            self.decoders.append(EmbedSequential(*[NAFBlock(chan) for _ in range(num)]))
 
         self.padder_size = 2 ** len(self.encoders)
         self.ms_encs = MultiscaleMSEncoder(4, width, [1, 1], 1)
         self.pan_encs = MultiscalePANEncoder(1, width, [1, 1], 1)
+        
+        self.emb = partial(gamma_embedding, dim=64)
+        self.map = nn.Sequential(
+            nn.Linear(64, 256),
+            nn.SiLU(),
+            nn.Linear(256, 256),
+        )
 
-    def forward(self, ms, pan):
+    def forward(self, x, gammas, ms, pan):
+        x = self.intro(x)
+        t = self.map(self.emb(gammas.view(-1, )))
         ms_encs, pan_encs = self.ms_encs(ms), self.pan_encs(pan)
-        fuse = 0
+        fuse = self.first(x, t)
         for encoder, down, ms, pan in zip(self.encoders, self.downs, ms_encs[:2], pan_encs[:2]):
-            # x = encoder(x)
-            # cond = cond_encoder(cond)
-            # x = x + cond
-            # encs.append(x)
-            # x = down(x)
-            # cond = cond_down(cond)
             fuse = ms + pan + fuse
-            fuse = encoder(fuse)
+            fuse = encoder(fuse, t)
             fuse = down(fuse)
-        fuse = fuse+ms_encs[-1]+pan_encs[-1]
-        fuse = self.middle_blks(fuse)
+        fuse = fuse + ms_encs[-1] + pan_encs[-1]
+        fuse = self.middle_blks(fuse, t)
         # print(fuse.shape)
 
-        for decoder, up, ms, pan in zip(self.decoders, self.ups, ms_encs[::-1][1:], pan_encs[::-1][1:]):
+        for decoder, up, ms, pan in zip(
+            self.decoders, self.ups, ms_encs[::-1][1:], pan_encs[::-1][1:]
+        ):
             fuse = up(fuse)
-            fuse = fuse + ms+pan # uedm6 skip+ms+pan
-            fuse = decoder(fuse)
+            fuse = fuse + ms + pan  # uedm6 skip+ms+pan
+            fuse = decoder(fuse, t)
 
         fuse = self.ending(fuse)
         return fuse
 
 
 if __name__ == "__main__":
-    # x = torch.randn(1, 4, 64, 64)
-    # y = torch.randn(1, 1, 256, 256)
-    # out = UEDM(width=32, enc_blk_nums=[1, 1], dec_blk_nums=[1, 1])(x, y)
-    # assert out.shape == (1, 4, 256, 256)
-    x = torch.randn(1, 1, 256, 256)
-    n = MultiscalePANEncoder(1, 32)
-    for i in n(x):
-        print(i.shape)
+    x = torch.randn(1, 4, 256, 256)
+    t = torch.ones(1, )
+    ms = torch.randn(1, 4, 64, 64)
+    pan = torch.randn(1, 1, 256, 256)
+    out = UEDMDiffusion(width=32, enc_blk_nums=[1, 1], dec_blk_nums=[1, 1])(x, t, ms, pan)
+    assert out.shape == (1, 4, 256, 256)

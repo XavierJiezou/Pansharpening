@@ -1,0 +1,43 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /data: panbench
+  - override /model: uedm
+  - override /callbacks: default
+  - override /trainer: default
+  - override /logger: wandb
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["panbench", "uedm5"]
+
+seed: 42
+
+trainer:
+  min_epochs: 50
+  max_epochs: 100
+  gradient_clip_val: 0.5
+  accelerator: gpu
+  devices: [1]
+
+model:
+  optimizer:
+    lr: 0.001
+  net:
+    width: 32
+  compile: false
+
+data:
+  batch_size: 16
+
+logger:
+  wandb:
+    name: "uedm5"
+    tags: ${tags}
+    group: ""
+  aim:
+    experiment: "uedm5"

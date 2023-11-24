@@ -312,28 +312,28 @@ class UEDM(nn.Module):
 
         self.padder_size = 2 ** len(self.encoders)
         self.ms_encs = MultiscaleMSEncoder(4, width, [1, 1], 1)
-        self.pan_encs = MultiscalePANEncoder(1, width, [1, 1], 1)
+        # self.pan_encs = MultiscalePANEncoder(1, width, [1, 1], 1)
 
     def forward(self, ms, pan):
-        ms_encs, pan_encs = self.ms_encs(ms), self.pan_encs(pan)
+        ms_encs = self.ms_encs(ms)
         fuse = 0
-        for encoder, down, ms, pan in zip(self.encoders, self.downs, ms_encs[:2], pan_encs[:2]):
+        for encoder, down, ms in zip(self.encoders, self.downs, ms_encs[:2]):
             # x = encoder(x)
             # cond = cond_encoder(cond)
             # x = x + cond
             # encs.append(x)
             # x = down(x)
             # cond = cond_down(cond)
-            fuse = ms + pan + fuse
+            fuse = ms + fuse
             fuse = encoder(fuse)
             fuse = down(fuse)
-        fuse = fuse+ms_encs[-1]+pan_encs[-1]
+        fuse = fuse+ms_encs[-1]
         fuse = self.middle_blks(fuse)
         # print(fuse.shape)
 
-        for decoder, up, ms, pan in zip(self.decoders, self.ups, ms_encs[::-1][1:], pan_encs[::-1][1:]):
+        for decoder, up, ms in zip(self.decoders, self.ups, ms_encs[::-1][1:]):
             fuse = up(fuse)
-            fuse = fuse + ms+pan # uedm6 skip+ms+pan
+            fuse = fuse + ms # uedm6 skip+ms+pan
             fuse = decoder(fuse)
 
         fuse = self.ending(fuse)
@@ -341,11 +341,7 @@ class UEDM(nn.Module):
 
 
 if __name__ == "__main__":
-    # x = torch.randn(1, 4, 64, 64)
-    # y = torch.randn(1, 1, 256, 256)
-    # out = UEDM(width=32, enc_blk_nums=[1, 1], dec_blk_nums=[1, 1])(x, y)
-    # assert out.shape == (1, 4, 256, 256)
-    x = torch.randn(1, 1, 256, 256)
-    n = MultiscalePANEncoder(1, 32)
-    for i in n(x):
-        print(i.shape)
+    x = torch.randn(1, 4, 64, 64)
+    y = torch.randn(1, 1, 256, 256)
+    out = UEDM(width=32, enc_blk_nums=[1, 1], dec_blk_nums=[1, 1])(x, y)
+    assert out.shape == (1, 4, 256, 256)

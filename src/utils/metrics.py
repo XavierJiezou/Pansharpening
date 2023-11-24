@@ -373,14 +373,15 @@ def qnr(
 
 def ref_evaluate(pred, gt):
     # reference metrics
-    c_psnr = psnr(pred, gt)
-    c_ssim = ssim(pred, gt)
+    # c_psnr = psnr(pred, gt)
+    # c_ssim = ssim(pred, gt)
     c_sam = sam(pred, gt)
     c_ergas = ergas(pred, gt)
     c_scc = scc(pred, gt)
-    c_q = qindex(pred, gt)
+    # c_q = qindex(pred, gt)
 
-    return [c_psnr, c_ssim, c_sam, c_ergas, c_scc, c_q]
+    # return [c_psnr, c_ssim, c_sam, c_ergas, c_scc, c_q]
+    return [1, 2, c_sam, c_ergas, c_scc, 3]
 
 
 def no_ref_evaluate(pred, pan, hs):
