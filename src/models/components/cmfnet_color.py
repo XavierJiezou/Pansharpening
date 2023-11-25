@@ -1,10 +1,11 @@
+import math
+from abc import abstractmethod
+from functools import partial
+from typing import Callable, List, Optional, Tuple, Union
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from functools import partial
-import math
-from abc import abstractmethod
-from typing import List, Tuple, Union, Optional, Callable
 
 
 class LayerNormFunction(torch.autograd.Function):
@@ -40,7 +41,7 @@ class LayerNormFunction(torch.autograd.Function):
 
 class LayerNorm2d(nn.Module):
     def __init__(self, channels, eps=1e-6):
-        super(LayerNorm2d, self).__init__()
+        super().__init__()
         self.register_parameter("weight", nn.Parameter(torch.ones(channels)))
         self.register_parameter("bias", nn.Parameter(torch.zeros(channels)))
         self.eps = eps
@@ -138,12 +139,8 @@ class NAFBlock(nn.Module):
         self.norm1 = LayerNorm2d(c)
         self.norm2 = LayerNorm2d(c)
 
-        self.dropout1 = (
-            nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
-        )
-        self.dropout2 = (
-            nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
-        )
+        self.dropout1 = nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
+        self.dropout2 = nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
 
         self.beta = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
         self.gamma = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
@@ -200,9 +197,7 @@ class MultiscalePANEncoder(nn.Module):
             self.downs.append(nn.Conv2d(chan, 2 * chan, 2, 2))
             chan = chan * 2
 
-        self.middle_blks = nn.Sequential(
-            *[NAFBlock(chan) for _ in range(middle_blk_num)]
-        )
+        self.middle_blks = nn.Sequential(*[NAFBlock(chan) for _ in range(middle_blk_num)])
 
     def forward(self, pan):
         pan = self.intro(pan)
@@ -240,15 +235,11 @@ class MultiscaleMSEncoder(nn.Module):
         for num in enc_blk_nums:
             self.encs.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
             self.ups.append(
-                nn.Sequential(
-                    nn.Conv2d(chan, chan * 2, 1, bias=False), nn.PixelShuffle(2)
-                )
+                nn.Sequential(nn.Conv2d(chan, chan * 2, 1, bias=False), nn.PixelShuffle(2))
             )
             chan = chan // 2
 
-        self.middle_blks = nn.Sequential(
-            *[NAFBlock(chan) for _ in range(middle_blk_num)]
-        )
+        self.middle_blks = nn.Sequential(*[NAFBlock(chan) for _ in range(middle_blk_num)])
 
     def forward(self, ms):
         ms = self.intro(ms)
@@ -297,15 +288,11 @@ class UEDM(nn.Module):
             self.downs.append(nn.Conv2d(chan, 2 * chan, 2, 2))
             chan = chan * 2
 
-        self.middle_blks = nn.Sequential(
-            *[NAFBlock(chan) for _ in range(middle_blk_num)]
-        )
+        self.middle_blks = nn.Sequential(*[NAFBlock(chan) for _ in range(middle_blk_num)])
 
         for num in dec_blk_nums:
             self.ups.append(
-                nn.Sequential(
-                    nn.Conv2d(chan, chan * 2, 1, bias=False), nn.PixelShuffle(2)
-                )
+                nn.Sequential(nn.Conv2d(chan, chan * 2, 1, bias=False), nn.PixelShuffle(2))
             )
             chan = chan // 2
             self.decoders.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
@@ -327,13 +314,13 @@ class UEDM(nn.Module):
             fuse = pan + fuse
             fuse = encoder(fuse)
             fuse = down(fuse)
-        fuse = fuse+pan_encs[-1]
+        fuse = fuse + pan_encs[-1]
         fuse = self.middle_blks(fuse)
         # print(fuse.shape)
 
         for decoder, up, pan in zip(self.decoders, self.ups, pan_encs[::-1][1:]):
             fuse = up(fuse)
-            fuse = fuse +pan # uedm6 skip+ms+pan
+            fuse = fuse + pan  # uedm6 skip+ms+pan
             fuse = decoder(fuse)
 
         fuse = self.ending(fuse)
