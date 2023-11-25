@@ -109,15 +109,6 @@ python src/eval.py experiment=cmfnet
 
 You can download pretrained models here: CMFNet.
 
-## Getting Started
-
-Please see [get_started.md](docs/en/get_started.md) for the basic usage. Here is an example of single GPU non-distributed training SimVP+gSTA on Moving MNIST dataset.
-
-```shell
-bash tools/prepare_data/download_mmnist.sh
-python tools/train.py -d mmnist --lr 1e-3 -c configs/mmnist/simvp/SimVP_gSTA.py --ex_name mmnist_simvp_gsta
-```
-
 ## Overview of Model Zoo and Datasets
 
 We support various pansharpening methods and satellites. We are working on add new methods and collecting experiment results.
