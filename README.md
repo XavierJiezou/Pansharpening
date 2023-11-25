@@ -146,13 +146,13 @@ python visualize.py
 ```
 
 ![map](images/rainbow.png)
-![vis](images%5Cvis%5C15_%5B'GF2'%5D_%5B'vegetation'%5D.png)
-![vis](images%5Cvis%5C23_%5B'QB'%5D_%5B'urban,crops,vegetation'%5D.png)
-![vis](images%5Cvis%5C45_%5B'IN'%5D_%5B'urban,vegetation'%5D.png)
-![vis](images%5Cvis%5C66_%5B'IN'%5D_%5B'urban'%5D.png)
-![vis](images%5Cvis%5C84_%5B'QB'%5D_%5B'urban,crops'%5D.png)
-![vis](images%5Cvis%5C327_%5B'GF1'%5D_%5B'water'%5D.png)
-![vis](images%5Cvis%5C540_%5B'GF2'%5D_%5B'vegetation,urban'%5D.png)
+![vis](images/vis/15_%5B'GF2'%5D_%5B'vegetation'%5D.png)
+![vis](images/vis/23_%5B'QB'%5D_%5B'urban,crops,vegetation'%5D.png)
+![vis](images/vis/45_%5B'IN'%5D_%5B'urban,vegetation'%5D.png)
+![vis](images/vis/66_%5B'IN'%5D_%5B'urban'%5D.png)
+![vis](images/vis/84_%5B'QB'%5D_%5B'urban,crops'%5D.png)
+![vis](images/vis/327_%5B'GF1'%5D_%5B'water'%5D.png)
+![vis](images/vis/540_%5B'GF2'%5D_%5B'vegetation,urban'%5D.png)
 
 ## License
 

@@ -90,12 +90,12 @@ repos:
         args: ["-s", "B101"]
 
   # yaml formatting
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.6
-    hooks:
-      - id: prettier
-        types: [yaml]
-        exclude: "environment.yaml"
+  # - repo: https://github.com/pre-commit/mirrors-prettier
+  #   rev: v3.0.0-alpha.6
+  #   hooks:
+  #     - id: prettier
+  #       types: [yaml]
+  #       exclude: "environment.yaml"
 
   # shell scripts linter
   # - repo: https://github.com/shellcheck-py/shellcheck-py
@@ -104,17 +104,17 @@ repos:
   #     - id: shellcheck
 
   # md formatting
-  - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.16
-    hooks:
-      - id: mdformat
-        args: ["--number"]
-        additional_dependencies:
-          - mdformat-gfm
-          - mdformat-tables
-          - mdformat_frontmatter
-          # - mdformat-toc
-          # - mdformat-black
+  # - repo: https://github.com/executablebooks/mdformat
+  #   rev: 0.7.16
+  #   hooks:
+  #     - id: mdformat
+  #       args: ["--number"]
+  #       additional_dependencies:
+  #         - mdformat-gfm
+  #         - mdformat-tables
+  #         - mdformat_frontmatter
+  # - mdformat-toc
+  # - mdformat-black
 
   # word spelling linter
   # - repo: https://github.com/codespell-project/codespell
