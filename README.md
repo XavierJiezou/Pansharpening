@@ -148,6 +148,21 @@ We support various pansharpening methods and satellites. We are working on add n
 
 ## Visualization
 
+We provide a visualization tool to help you understand the training process. You can use the following command to start the visualization tool.
+
+```shell
+python visualize.py
+```
+
+![map](images/rainbow.png)
+![vis](images%5Cvis%5C15_%5B'GF2'%5D_%5B'vegetation'%5D.png)
+![vis](images%5Cvis%5C23_%5B'QB'%5D_%5B'urban,crops,vegetation'%5D.png)
+![vis](images%5Cvis%5C45_%5B'IN'%5D_%5B'urban,vegetation'%5D.png)
+![vis](images%5Cvis%5C66_%5B'IN'%5D_%5B'urban'%5D.png)
+![vis](images%5Cvis%5C84_%5B'QB'%5D_%5B'urban,crops'%5D.png)
+![vis](images%5Cvis%5C327_%5B'GF1'%5D_%5B'water'%5D.png)
+![vis](images%5Cvis%5C540_%5B'GF2'%5D_%5B'vegetation,urban'%5D.png)
+
 ## License
 
 This project is released under the [Apache 2.0 license](LICENSE). See `LICENSE` for more information.
