@@ -155,6 +155,16 @@ python visualize.py
 ![vis](images/vis/327_%5B'GF1'%5D_%5B'water'%5D.png)
 ![vis](images/vis/540_%5B'GF2'%5D_%5B'vegetation,urban'%5D.png)
 
-## License
+## Citation
 
-This project is released under the [Apache 2.0 license](LICENSE). See `LICENSE` for more information.
+If you use our code or models in your research, please cite with:
+```latex
+@misc{wang2023panbench,
+      title={PanBench: Towards High-Resolution and High-Performance Pansharpening}, 
+      author={Shiying Wang and Xuechao Zou and Kai Li and Junliang Xing and Pin Tao},
+      year={2023},
+      eprint={2311.12083},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
