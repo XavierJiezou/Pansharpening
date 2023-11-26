@@ -1,3 +1,4 @@
+![logo](images/logo.png)
 # PanBench: Towards High-Resolution and High-Performance Pansharpening
 
 <p align="left">
