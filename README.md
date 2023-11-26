@@ -26,8 +26,6 @@ This repository is the official PyTorch implementation of our paper *PanBench: T
   <img src='images/toolbox.svg' width="90%">
 </p>
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 ## Requirements
 
 To install dependencies:
