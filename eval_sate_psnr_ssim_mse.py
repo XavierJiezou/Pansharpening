@@ -18,6 +18,7 @@ from src.models.components.cmfnet_diffusion import UEDMDiffusion
 from src.models.components.cmfnet import UEDM
 from torchmetrics.image.psnr import PeakSignalNoiseRatio as _PNSR
 from torchmetrics.image.ssim import StructuralSimilarityIndexMeasure as _SSIM
+import numpy as np
 
 
 class Eval:
@@ -99,31 +100,177 @@ class Eval:
                 "SAM": [],
                 "ERGAS": [],
                 "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
             },
             "urban": {
                 "SAM": [],
                 "ERGAS": [],
                 "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
             },
             "ice": {
                 "SAM": [],
                 "ERGAS": [],
                 "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
             },
             "crops": {
                 "SAM": [],
                 "ERGAS": [],
                 "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
             },
             "vegetation": {
                 "SAM": [],
                 "ERGAS": [],
                 "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
             },
             "barren": {
                 "SAM": [],
                 "ERGAS": [],
                 "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "GF1": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "GF2": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "GF6": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "LC7": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "LC8": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "WV2": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "WV3": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "WV4": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "QB": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
+            },
+            "IN": {
+                "SAM": [],
+                "ERGAS": [],
+                "SCC": [],
+                "MSE": [],
+                "PSNR": [],
+                "SSIM": [],
+                "D_lambda": [],
+                "D_s": [],
+                "QNR": [],
             },
         }
         
@@ -144,8 +291,17 @@ class Eval:
                 # D_lambda, D_s, QNR = no_ref_evaluate(
                 #     *[i.permute(1, 2, 0).numpy() for i in [fake_ms.squeeze(0), pan, ms]]
                 # )
+
+                c_pred, c_pan, c_hs = fake_lrms.detach().cpu().numpy()[0], lrpan.detach().cpu().numpy()[0], \
+                lrms.detach().cpu().numpy()[0]
+                c_pred = np.transpose(c_pred, (1, 2, 0))
+                c_pan = np.transpose(c_pan, (1, 2, 0))
+                c_hs = np.transpose(c_hs, (1, 2, 0))
+                # print(c_pred.shape,c_pan.shape,c_hs.shape)
+                c_D_lambda, c_D_s, c_qnr = no_ref_evaluate(c_pred, c_pan, c_hs)
+
                 PSNR, SSIM, SAM, ERGAS, SCC, Q = ref_evaluate(
-                    *[i.permute(1, 2, 0).numpy() for i in [fake_lrms.squeeze(0), ms.squeeze(0)]]
+                    *[i.permute(1, 2, 0).cpu().numpy() for i in [fake_lrms.squeeze(0), ms.squeeze(0)]]
                 )
                 
                 # ref_metrics["PSNR"].append(PSNR)
@@ -157,16 +313,35 @@ class Eval:
                 #     sates[sate]["SAM"].append(SAM)
                 #     sates[sate]["ERGAS"].append(ERGAS)
                 #     sates[sate]["SCC"].append(SCC)
-                # psnr = self.psnr(fake_lrms, ms).item()
-                # ssim = self.ssim(fake_lrms, ms).item()
-                # mse = self.mse(fake_lrms, ms).item()
+
+                psnr = self.psnr(fake_lrms, ms).item()
+                ssim = self.ssim(fake_lrms, ms).item()
+                mse = self.mse(fake_lrms, ms).item()
+
+                sates[x['sate'][0]]["SAM"].append(SAM)
+                sates[x['sate'][0]]["ERGAS"].append(ERGAS)
+                sates[x['sate'][0]]["SCC"].append(SCC)
+
+                sates[x['sate'][0]]["MSE"].append(mse)
+                sates[x['sate'][0]]["PSNR"].append(psnr)
+                sates[x['sate'][0]]["SSIM"].append(ssim)
+
+                sates[x['sate'][0]]["D_lambda"].append(c_D_lambda)
+                sates[x['sate'][0]]["D_s"].append(c_D_s)
+                sates[x['sate'][0]]["QNR"].append(c_qnr)
+
                 for scene in sate:
-                    # sates[scene]["PSNR"].append(psnr)
-                    # sates[scene]["SSIM"].append(ssim)
-                    # sates[scene]["MSE"].append(mse)
+                    sates[scene]["PSNR"].append(psnr)
+                    sates[scene]["SSIM"].append(ssim)
+                    sates[scene]["MSE"].append(mse)
                     sates[scene]["SAM"].append(SAM)
                     sates[scene]["ERGAS"].append(ERGAS)
                     sates[scene]["SCC"].append(SCC)
+
+                    sates[scene]["D_lambda"].append(c_D_lambda)
+                    sates[scene]["D_s"].append(c_D_s)
+                    sates[scene]["QNR"].append(c_qnr)
+
                 # sates[sate]["PSNR"].append(psnr)
                 # sates[sate]["SSIM"].append(ssim)
                 # sates[sate]["MSE"].append(mse)
@@ -213,6 +388,13 @@ class Eval:
                 "SAM": f"{sum(sates[sate]['SAM'])/len(sates[sate]['SAM']):.4f}",
                 "ERGAS": f"{sum(sates[sate]['ERGAS'])/len(sates[sate]['ERGAS']):.4f}",
                 "SCC": f"{sum(sates[sate]['SCC'])/len(sates[sate]['SCC']):.4f}",
+                "MSE": f"{sum(sates[sate]['MSE']) / len(sates[sate]['MSE']):.9f}",
+                "PSNR": f"{sum(sates[sate]['PSNR']) / len(sates[sate]['PSNR']):.4f}",
+                "SSIM": f"{sum(sates[sate]['SSIM']) / len(sates[sate]['SSIM']):.4f}",
+
+                "D_lambda": f"{sum(sates[sate]['D_lambda']) / len(sates[sate]['D_lambda']):.9f}",
+                "D_s": f"{sum(sates[sate]['D_s']) / len(sates[sate]['D_s']):.4f}",
+                "QNR": f"{sum(sates[sate]['QNR']) / len(sates[sate]['QNR']):.4f}",
             }
             # result[sate] = {
             #     "PSNR": f"{sum(sates[sate]['PSNR'])/len(sates[sate]['PSNR']):.4f}",
