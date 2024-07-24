@@ -23,7 +23,7 @@ from torchmetrics.image.ssim import StructuralSimilarityIndexMeasure as _SSIM
 class Eval:
     def __init__(self, model_name: str) -> None:
         self.model_name = model_name
-        self.device = "cpu"
+        self.device = self.get_device()
         self.load_data()
         self.load_model()
         self.criterion = torch.nn.MSELoss()
@@ -61,11 +61,16 @@ class Eval:
         else:
             raise ValueError("Model name is not valid")
 
+    def get_device(self):
+        if torch.cuda.is_available():
+            return "cuda"
+        return "cpu"
+
     def load_model(self) -> None:
-        ckpt_path = glob.glob(f"logs/train/runs/{self.model_name}6/checkpoints/*.ckpt")[
+        ckpt_path = glob.glob(f"logs/train/runs/{self.model_name}/checkpoints/*.ckpt")[
             0
         ]
-        checkpoint = torch.load(ckpt_path)
+        checkpoint = torch.load(ckpt_path,map_location=self.device)
         state_dict = {}
         for key in checkpoint["state_dict"]:
             if "net._orig_mod." in key:
@@ -73,7 +78,7 @@ class Eval:
             else:
                 new_key = key.replace("net.", "")
             state_dict[new_key] = checkpoint["state_dict"][key]
-        self.model = UEDM(width=32)
+        self.model = self.get_model()
         self.model.load_state_dict(state_dict)
         self.model = self.model.to(self.device)
 
