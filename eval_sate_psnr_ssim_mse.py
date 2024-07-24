@@ -14,8 +14,8 @@ from src.models.components.fusionnet import FusionNet
 from src.models.components.gppnn import GPPNN
 from src.models.components.srppnn import SRPPNN
 from src.models.components.pgcu import PGCU
-from src.models.components.uedm_diffusion import UEDMDiffusion
-from src.models.components.uedm import UEDM
+from src.models.components.cmfnet_diffusion import UEDMDiffusion
+from src.models.components.cmfnet import UEDM
 from torchmetrics.image.psnr import PeakSignalNoiseRatio as _PNSR
 from torchmetrics.image.ssim import StructuralSimilarityIndexMeasure as _SSIM
 
