@@ -1,5 +1,6 @@
 import torch
 import glob
+import os
 import numpy as np
 from torchvision.datasets import VisionDataset
 import matplotlib.pyplot as plt
@@ -18,7 +19,7 @@ from src.models.components.fusionnet import FusionNet
 from src.models.components.gppnn import GPPNN
 from src.models.components.srppnn import SRPPNN
 from src.models.components.pgcu import PGCU
-from src.models.components.uedm import UEDM
+from src.models.components.cmfnet import UEDM
 
 
 class Visualize:
@@ -34,6 +35,7 @@ class Visualize:
             "PGCU": PGCU(),
             "CMFNet": UEDM(width=32),  # ("net.", "")
         }
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def load_data(self) -> VisionDataset:
         dm = PanBenchDataModule(batch_size=1, pin_memory=True)
@@ -43,10 +45,10 @@ class Visualize:
 
     def load_model(self, model_name) -> torch.nn.Module:
         if model_name == "CMFNet":
-            ckpt_path = glob.glob(f"logs/train/runs/uedm6/checkpoints/*.ckpt")[0]
+            ckpt_path = glob.glob(f"logs/train/runs/cmfnet/checkpoints/*.ckpt")[0]
         else:
             ckpt_path = glob.glob(f"logs/train/runs/{model_name.lower()}/checkpoints/*.ckpt")[0]
-        checkpoint = torch.load(ckpt_path)
+        checkpoint = torch.load(ckpt_path,map_location=self.device)
         state_dict = {}
         for key in checkpoint["state_dict"]:
             if model_name == "CMFNet":
@@ -56,10 +58,13 @@ class Visualize:
             state_dict[new_key] = checkpoint["state_dict"][key]
         model = self.model_sets[model_name]
         model.load_state_dict(state_dict)
+        model.to(self.device)
         model.eval()
         return model
 
     def visualize(self, sample_path: str = None, input_type: str = "reduced") -> None:
+        if not os.path.exists("vis_pdf"):
+            os.mkdir("vis_pdf")
         # 绘制一个长为10，宽为2的子图
         # 第一行显示各个模型生成的fake_lrms的RGB图像，共9个模型，所有有9个子图，然后还有一个真实的RGB图像，即为ms
         # 第二行显示各个模型生成的fake_lrms的图像和真实MS的差值图像，共9个模型，所有有9个子图，然后还有一个真实ms图像和它自己的差值图像
@@ -73,6 +78,7 @@ class Visualize:
                 intput_pan = (
                     sample["lrpan"] if input_type == "reduced" else sample["pan"]
                 )
+            intput_ms, intput_pan = intput_ms.to(self.device), intput_pan.to(self.device)
             groud_truth = sample["ms"]
             plt.figure(figsize=(20, 4))
             # 调小间距
@@ -81,6 +87,7 @@ class Visualize:
             for i, j in enumerate(self.model_sets):
                 with torch.no_grad():
                     fake = self.load_model(j).forward(intput_ms, intput_pan)
+                    fake = fake.cpu()
                 # fake = (fake*255).type(torch.uint8)
                 fake = torch.clip(fake, 0, 1)
                 PSNR = psnr(fake, groud_truth, data_range=1.0, reduction="elementwise_mean", dim=[1, 2, 3])
