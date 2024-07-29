@@ -14,7 +14,7 @@ scheduler:
   patience: 10
 
 net:
-  _target_: src.models.components.uedm_diffusion.UEDMDiffusion
+  _target_: src.models.components.cmfnet_diffusion.UEDMDiffusion
   width: 64
 
 # compile model for faster training with pytorch 2.0
