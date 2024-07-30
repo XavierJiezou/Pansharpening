@@ -28,8 +28,8 @@ class Eval:
         self.load_data()
         self.load_model()
         self.criterion = torch.nn.MSELoss()
-        self.psnr = _PNSR(data_range=1.0, reduction="elementwise_mean", dim=[1, 2, 3])
-        self.ssim = _SSIM(data_range=1.0, reduction="elementwise_mean", dim=[1, 2, 3])
+        self.psnr = _PNSR(data_range=1.0, reduction="elementwise_mean", dim=[1, 2, 3]).to(self.device)
+        self.ssim = _SSIM(data_range=1.0, reduction="elementwise_mean").to(self.device)
         self.mse = torch.nn.MSELoss()
 
     def load_data(self) -> None:
