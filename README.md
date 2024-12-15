@@ -2,26 +2,9 @@
 
 # Pansharpening
 
-<p align="left">
-<a href="https://arxiv.org/abs/2311.12083" alt="arXiv">
-    <img src="https://img.shields.io/badge/arXiv-2311.12083-b31b1b.svg?style=flat" /></a>
-<a href="https://github.com/XavierJiezou/Pansharpening/blob/main/LICENSE" alt="license">
-    <img src="https://img.shields.io/badge/license-Apache--2.0-%23002FA7" /></a>
-<!-- <a href="https://huggingface.co/OpenSTL" alt="Huggingface">
-    <img src="https://img.shields.io/badge/huggingface-OpenSTL-blueviolet" /></a> -->
-<!-- <a href="https://openstl.readthedocs.io/en/latest/" alt="docs">
-    <img src="https://readthedocs.org/projects/openstl/badge/?version=latest" /></a> -->
-<!-- <a href="https://github.com/chengtan9907/OpenSTL/issues" alt="docs">
-    <img src="https://img.shields.io/github/issues-raw/chengtan9907/SimVPv2?color=%23FF9600" /></a> -->
-<a href="https://github.com/XavierJiezou/Pansharpening/issues" alt="resolution">
-    <img src="https://img.shields.io/badge/issue%20resolution-1%20d-%23B7A800" /></a>
-<a href="https://img.shields.io/github/stars/XavierJiezou/Pansharpening" alt="stars">
-    <img src="https://img.shields.io/github/stars/XavierJiezou/Pansharpening" /></a>
-</p>
-
 ## Introduction
 
-This repository is the official PyTorch implementation of our paper *PanBench: Towards High-Resolution and High-Performance Pansharpening*.
+This repository is the official PyTorch implementation of our paper *Towards Robust Pansharpening: A Large-Scale High-Resolution Multi-Scene Dataset and Novel Approach*.
 
 <p align="center" width="100%">
   <img src='images/toolbox.svg' width="90%">
