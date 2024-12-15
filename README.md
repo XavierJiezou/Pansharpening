@@ -159,12 +159,13 @@ python visualize.py
 
 If you use our code or models in your research, please cite with:
 ```latex
-@misc{wang2023panbench,
-      title={PanBench: Towards High-Resolution and High-Performance Pansharpening}, 
-      author={Shiying Wang and Xuechao Zou and Kai Li and Junliang Xing and Pin Tao},
-      year={2023},
-      eprint={2311.12083},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@Article{cmfnet,
+AUTHOR = {Wang, Shiying and Zou, Xuechao and Li, Kai and Xing, Junliang and Cao, Tengfei and Tao, Pin},
+TITLE = {Towards Robust Pansharpening: A Large-Scale High-Resolution Multi-Scene Dataset and Novel Approach},
+JOURNAL = {Remote Sensing},
+VOLUME = {16},
+YEAR = {2024},
+NUMBER = {16},
 }
+
 ```
