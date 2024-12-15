@@ -92,7 +92,7 @@ python src/eval.py experiment=cmfnet
 
 ## Pre-trained Models
 
-You can download pretrained models here: CMFNet.
+You can download pretrained models in [logs/train/runs](logs/train/runs).
 
 ## Overview of Model Zoo and Datasets
 
