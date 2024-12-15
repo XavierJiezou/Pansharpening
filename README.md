@@ -79,7 +79,7 @@ python src/train.py experiment=cmfnet
 To test the models in the paper, run these commands:
 
 ```bash
-python src/train.py experiment=cmfnet
+python src/test.py experiment=cmfnet
 ```
 
 ## Evaluation
