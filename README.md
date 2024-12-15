@@ -1,5 +1,6 @@
 ![logo](images/logo_v2.png)
-# PanBench: Towards High-Resolution and High-Performance Pansharpening
+
+# Pansharpening
 
 <p align="left">
 <a href="https://arxiv.org/abs/2311.12083" alt="arXiv">
