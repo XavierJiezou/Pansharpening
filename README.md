@@ -99,7 +99,7 @@ You can download pretrained models in [logs/train/runs](logs/train/runs).
 We support various pansharpening methods and satellites. We are working on add new methods and collecting experiment results.
 
 - Currently supported methods.
-
+   
   - [x] [PNN](https://www.mdpi.com/2072-4292/8/7/594) (Remote Sensing'2016)
   - [x] [PanNet](https://xueyangfu.github.io/paper/2017/iccv/YangFuetal2017.pdf) (ICCV'2017)
   - [x] [MSDCNN](https://arxiv.org/abs/1712.09809) (J-STARS'2018)
@@ -108,6 +108,7 @@ We support various pansharpening methods and satellites. We are working on add n
   - [x] [GPPNN](https://arxiv.org/abs/2103.04584) (CVPR'2021)
   - [x] [SRPPNN](https://ieeexplore.ieee.org/abstract/document/9172104) (TGRS'2021)
   - [x] [PGCU](https://arxiv.org/abs/2303.13659) (CVPR'2023)
+  - [x] [CMFNet](www.mdpi.com/2072-4292/16/16/2899) (Remote Sensing'2024)
 
 - Currently supported satellites.
 
