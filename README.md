@@ -12,8 +12,6 @@ This repository is the official PyTorch implementation of our paper [Towards Rob
 
 ## Requirements
 
-To install dependencies:
-
 ```bash
 pip install -r requirements.txt
 ```
@@ -68,23 +66,11 @@ PanBench
 
 ## Training
 
-To train the models in the paper, run these commands:
-
 ```bash
 python src/train.py experiment=cmfnet
 ```
 
-## Testing
-
-To test the models in the paper, run these commands:
-
-```bash
-python src/test.py experiment=cmfnet
-```
-
 ## Evaluation
-
-To evaluate the models in the paper, run these commands:
 
 ```bash
 python src/eval.py experiment=cmfnet
@@ -92,13 +78,11 @@ python src/eval.py experiment=cmfnet
 
 ## Pre-trained Models
 
-You can download pretrained models in [logs/train/runs](logs/train/runs).
+You can download pre-trained models in [logs/train/runs](logs/train/runs).
 
 ## Overview of Model Zoo and Datasets
 
-We support various pansharpening methods and satellites. We are working on add new methods and collecting experiment results.
-
-- Currently supported methods.
+- Supported methods.
    
   - [x] [PNN](https://www.mdpi.com/2072-4292/8/7/594) (Remote Sensing'2016)
   - [x] [PanNet](https://xueyangfu.github.io/paper/2017/iccv/YangFuetal2017.pdf) (ICCV'2017)
@@ -110,7 +94,7 @@ We support various pansharpening methods and satellites. We are working on add n
   - [x] [PGCU](https://arxiv.org/abs/2303.13659) (CVPR'2023)
   - [x] [CMFNet](www.mdpi.com/2072-4292/16/16/2899) (Remote Sensing'2024)
 
-- Currently supported satellites.
+- Supported satellites.
 
   - [x] GaoFen1
   - [x] GaoFen2
@@ -124,8 +108,6 @@ We support various pansharpening methods and satellites. We are working on add n
   - [x] IKONOS
 
 ## Visualization
-
-We provide a visualization tool to help you understand the training process. You can use the following command to start the visualization tool.
 
 ```shell
 python visualize.py
@@ -143,6 +125,7 @@ python visualize.py
 ## Citation
 
 If you use our code or models in your research, please cite with:
+
 ```latex
 @Article{cmfnet,
 AUTHOR = {Wang, Shiying and Zou, Xuechao and Li, Kai and Xing, Junliang and Cao, Tengfei and Tao, Pin},
