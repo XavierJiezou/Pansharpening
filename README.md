@@ -1,9 +1,5 @@
 ![logo](images/logo_v2.png)
 
-# Pansharpening
-
-## Introduction
-
 This repository is the official PyTorch implementation of our paper [Towards Robust Pansharpening: A Large-Scale High-Resolution Multi-Scene Dataset and Novel Approach](https://www.mdpi.com/2072-4292/16/16/2899).
 
 <p align="center" width="100%">
